@@ -11,14 +11,8 @@ export default {
     };
   },
   created() {
-    this.getList();
   },
   methods: {
-    getList() {
-      this.axios.get('https://fe-interview-api.unnotech.com/books/').then((response) => {
-        console.log(response.data);
-      });
-    },
   },
 };
 </script>

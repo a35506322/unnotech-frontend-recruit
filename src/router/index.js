@@ -2,14 +2,20 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 
 const routes = [
   {
-    path: '/book_list',
+    path: '/books',
     name: 'book_list',
     component: () => import('../views/BookListPage.vue'),
   },
   {
-    path: '/book_detail/:id/',
+    path: '/books/:id',
     name: 'book_detail',
     component: () => import('../views/BookDetailPage.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: {
+      name: 'book_list',
+    },
   },
 ];
 

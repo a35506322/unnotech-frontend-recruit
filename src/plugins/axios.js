@@ -13,6 +13,9 @@ const errorHandle = ((status) => {
       });
       break;
     default:
+      app.config.globalProperties.$toast.add({
+        severity: 'error', summary: '程式內部失敗', detail: '出現不可預期錯誤', life: 3000,
+      });
       break;
   }
 });

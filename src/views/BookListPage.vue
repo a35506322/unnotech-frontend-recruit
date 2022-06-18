@@ -5,6 +5,7 @@
       <p-button
         icon="pi pi-plus-circle"
         class="p-button-rounded p-button-success p-button-lg"
+        v-on:click="openCommandBook"
       ></p-button>
     </div>
   </div>
@@ -26,12 +27,13 @@
       </p-card>
     </div>
   </div>
-  <command-book ref="commandBook"></command-book>
+  <command-book ref="commandBook" v-bind:is-new="true" v-on:save-item="saveAddBook"
+  v-bind:is-loading="loading" v-bind:tempItem="{}"></command-book>
 </template>
 
 <script>
 // eslint-disable-next-line import/no-cycle
-import { getBooks } from '@/apis/SystemApi';
+import { getBooks, addBook } from '@/apis/SystemApi';
 import CommandBook from '@/components/CommandBook.vue';
 
 export default {
@@ -41,6 +43,7 @@ export default {
   data() {
     return {
       books: [],
+      loading: false,
     };
   },
   mounted() {
@@ -59,6 +62,18 @@ export default {
     },
     openCommandBook() {
       this.$refs.commandBook.show();
+    },
+    async saveAddBook(book) {
+      this.loading = true;
+      const response = await addBook(book).then((res) => res);
+      if (response.status !== 201) {
+        return;
+      }
+      this.$toast.add({
+        severity: 'success', summary: '新增成功', detail: '', life: 3000,
+      });
+      await this.getBooks();
+      this.loading = false;
     },
   },
 };

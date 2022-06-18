@@ -16,5 +16,7 @@ module.exports = {
     'linebreak-style': ["off", "windows"],
     "no-underscore-dangle": 'off',
     "import/prefer-default-export": "off",
+    "vuejs-accessibility/label-has-for":"off",
+    "vuejs-accessibility/no-autofocus": "off"
   },
 };

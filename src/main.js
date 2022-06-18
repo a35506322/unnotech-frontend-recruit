@@ -4,6 +4,9 @@ import Button from 'primevue/button';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import Card from 'primevue/card';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
 import App from './App.vue';
 import router from './router';
 
@@ -14,4 +17,7 @@ app.use(ToastService);
 app.component('p-button', Button);
 app.component('p-toast', Toast);
 app.component('p-card', Card);
+app.component('p-dialog', Dialog);
+app.component('p-inputtext', InputText);
+app.component('p-textarea', Textarea);
 app.mount('#app');

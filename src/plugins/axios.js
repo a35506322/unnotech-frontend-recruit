@@ -1,22 +1,21 @@
 import axios from 'axios';
+import { app } from '@/main';
+
 // 域名
 axios.defaults.baseURL = 'https://fe-interview-api.unnotech.com/';
+
 // Error Handle
-const errorHandle = (status, msg) => {
+const errorHandle = ((status) => {
   switch (status) {
-    case 400:
-      console.log('400', msg);
-      break;
-    case 401:
-      console.log('401', msg);
-      break;
     case 404:
-      console.log('404', msg);
+      app.config.globalProperties.$toast.add({
+        severity: 'error', summary: '程式內部失敗', detail: 'Api網址有誤', life: 3000,
+      });
       break;
     default:
       break;
   }
-};
+});
 
 axios.interceptors.request.use((request) => request);
 // doing something with the response

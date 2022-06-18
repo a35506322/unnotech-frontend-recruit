@@ -13,28 +13,30 @@
   <div class="row">
     <div
       class="col-sm-12 col-md-6 flex justify-content-center"
-      v-for="book in books"
+      v-for="book in booksOfPage"
       v-bind:key="book.id"
     >
-    <div class="relative">
-      <p-card
-        class="card-wrapper transition-linear transition-duration-500
-        bg-blue-500 hover:bg-yellow-500 text-white hover:text-gray-900"
-        v-on:click="goBookDetailById(book.id)"
-      >
-        <template #title>書名：{{ book.title }}</template>
-        <template #content>
-          <p>作者：{{ book.author }}</p>
-        </template>
-      </p-card>
-      <p-button
-        icon="bi bi-trash"
-        class="p-button-rounded p-button-danger p-button-lg ml-2 absolute top--10 right--5"
-        v-on:click="deleteBookById(book)"
-      >
-      </p-button>
+      <div class="relative">
+        <p-card
+          class="card-wrapper transition-linear transition-duration-500
+          bg-blue-500 hover:bg-yellow-500 text-white hover:text-gray-900"
+          v-on:click="goBookDetailById(book.id)"
+        >
+          <template #title>書名：{{ book.title }}</template>
+          <template #content>
+            <p>作者：{{ book.author }}</p>
+          </template>
+        </p-card>
+        <p-button
+          icon="bi bi-trash"
+          class="p-button-rounded p-button-danger p-button-lg ml-2 absolute top--10 right--5"
+          v-on:click="deleteBookById(book)"
+        >
+        </p-button>
+      </div>
     </div>
-    </div>
+    <p-paginator v-bind:rows="rows" v-bind:totalRecords="books.length"
+    v-on:page="onPage($event)"></p-paginator>
   </div>
   <command-book ref="commandBook" v-bind:is-new="true" v-on:save-item="saveAddBook"
   v-bind:is-loading="loading" v-bind:tempItem="{}"></command-book>
@@ -54,10 +56,14 @@ export default {
     return {
       books: [],
       loading: false,
+      rows: 0,
+      booksOfPage: [],
     };
   },
-  mounted() {
-    this.getBooks();
+  async mounted() {
+    await this.getBooks();
+    this.rows = 10;
+    this.booksOfPage = this.books.slice(0, this.rows);
   },
   methods: {
     async getBooks() {
@@ -104,6 +110,11 @@ export default {
         reject: () => {
         },
       });
+    },
+    onPage(event) {
+      const start = this.rows * event.page;
+      const end = this.rows * (event.page + 1);
+      this.booksOfPage = this.books.slice(start, end);
     },
   },
 };

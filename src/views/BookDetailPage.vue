@@ -1,6 +1,11 @@
 <template>
-  <div class="d-flex justify-content-center">
+  <div class="d-flex justify-content-center align-items-center">
     <h1>{{ book.title }}</h1>
+    <p-button
+        icon="bi bi-pencil-square"
+        class="p-button-rounded p-button-success p-button-lg ml-2"
+        v-on:click="openCommandBook"
+      ></p-button>
   </div>
   <div class="row">
     <div class="col-12">
@@ -16,16 +21,24 @@
       <p class="text-lg" >{{ book.description }}</p>
     </div>
   </div>
+  <command-book ref="commandBook" v-bind:is-new="false" v-on:save-item="saveUpdateBook"
+  v-bind:is-loading="loading" v-bind:tempItem="book"></command-book>
 </template>
 
 <script>
 // eslint-disable-next-line import/no-cycle
-import { getBook } from '@/apis/SystemApi';
+import { getBook, updateBook } from '@/apis/SystemApi';
+import CommandBook from '@/components/CommandBook.vue';
+import { compareObjectDifferentialProperties } from '@/methods/common';
 
 export default {
+  components: {
+    'command-book': CommandBook,
+  },
   data() {
     return {
       book: {},
+      loading: false,
     };
   },
   mounted() {
@@ -38,6 +51,24 @@ export default {
         return;
       }
       this.book = response.data;
+    },
+    openCommandBook() {
+      this.$refs.commandBook.show();
+    },
+    async saveUpdateBook(newBook) {
+      const compareBook = compareObjectDifferentialProperties(this.book, newBook);
+      this.loading = true;
+      const response = await updateBook(this.$route.params.id, compareBook).then((res) => res);
+      if (response.status !== 200) {
+        this.loading = false;
+        return;
+      }
+      this.$toast.add({
+        severity: 'success', summary: '修改成功', detail: '', life: 3000,
+      });
+      await this.getBook();
+      this.loading = false;
+      this.$refs.commandBook.close();
     },
   },
 };

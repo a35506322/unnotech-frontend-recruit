@@ -98,15 +98,7 @@ export default {
     isVisible: {
       // eslint-disable-next-line no-unused-vars
       handler(newVal, oldVal) {
-        // 關閉時候需要重製驗證狀態
-        if (this.isVisible === false) {
-          this.v$.$reset();
-        }
-      },
-    },
-    tempItem: {
-      // eslint-disable-next-line no-unused-vars
-      handler(newVal, oldVal) {
+        this.v$.$reset();
         this.item = JSON.parse(JSON.stringify(this.tempItem));
       },
     },

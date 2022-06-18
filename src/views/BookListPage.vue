@@ -67,6 +67,7 @@ export default {
       this.loading = true;
       const response = await addBook(book).then((res) => res);
       if (response.status !== 201) {
+        this.loading = false;
         return;
       }
       this.$toast.add({
@@ -80,13 +81,13 @@ export default {
 </script>
 
 <style scoped>
-.card-wrapper {
-  width: 25rem;
-  margin-bottom: 2em;
-  cursor: pointer;
-}
+  .card-wrapper {
+    width: 25rem;
+    margin-bottom: 2em;
+    cursor: pointer;
+  }
 
-.top-25 {
-  top: 25%;
-}
+  .top-25 {
+    top: 25%;
+  }
 </style>

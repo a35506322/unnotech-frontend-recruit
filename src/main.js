@@ -9,6 +9,7 @@ import inputText from 'primevue/inputtext';
 import textarea from 'primevue/textarea';
 import confirmationService from 'primevue/confirmationservice';
 import confirmDialog from 'primevue/confirmdialog';
+import paginator from 'primevue/paginator';
 import App from './App.vue';
 import router from './router';
 
@@ -24,4 +25,5 @@ app.component('p-dialog', dialog);
 app.component('p-inputtext', inputText);
 app.component('p-textarea', textarea);
 app.component('p-confirm-dialog', confirmDialog);
+app.component('p-paginator', paginator);
 app.mount('#app');

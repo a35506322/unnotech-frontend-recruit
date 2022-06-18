@@ -74,7 +74,7 @@ export default {
       this.books = response.data;
     },
     goBookDetailById(id) {
-      this.$router.push(`/book_detail/${id}/`);
+      this.$router.push(`/books/${id}/`);
     },
     openCommandBook() {
       this.$refs.commandBook.show();

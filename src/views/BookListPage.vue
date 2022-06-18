@@ -1,6 +1,13 @@
 <template>
   <div class="d-flex justify-content-center align-content-center relative mb-3">
     <h1>書本列表</h1>
+    <div class="d-flex align-items-center">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search" />
+        <p-inputtext type="text" v-on:input="searchBook" v-model="tempBook"
+        placeholder="請輸入書名"></p-inputtext>
+      </span>
+    </div>
     <div class="absolute top-25 right-0">
       <p-button
         icon="pi pi-plus-circle"
@@ -35,8 +42,8 @@
         </p-button>
       </div>
     </div>
-    <p-paginator v-bind:rows="rows" v-bind:totalRecords="books.length"
-    v-on:page="onPage($event)"></p-paginator>
+    <p-paginator v-bind:rows="rows" v-bind:totalRecords="pageCount" ref="paginator"
+    v-on:page="onPage($event,isSearch)"></p-paginator>
   </div>
   <command-book ref="commandBook" v-bind:is-new="true" v-on:save-item="saveAddBook"
   v-bind:is-loading="loading" v-bind:tempItem="{}"></command-book>
@@ -58,12 +65,16 @@ export default {
       loading: false,
       rows: 0,
       booksOfPage: [],
+      tempBook: '',
+      pageCount: 0,
+      isSearch: false,
     };
   },
   async mounted() {
     await this.getBooks();
-    this.rows = 10;
+    this.rows = 5;
     this.booksOfPage = this.books.slice(0, this.rows);
+    this.pageCount = this.books.length;
   },
   methods: {
     async getBooks() {
@@ -111,10 +122,37 @@ export default {
         },
       });
     },
-    onPage(event) {
+    onPage(event, isSearch) {
       const start = this.rows * event.page;
       const end = this.rows * (event.page + 1);
-      this.booksOfPage = this.books.slice(start, end);
+      if (isSearch) {
+        const filterBooks = this.filterBookBytitle();
+        this.booksOfPage = filterBooks.slice(start, end);
+      } else {
+        this.booksOfPage = this.books.slice(start, end);
+      }
+    },
+    filterBookBytitle() {
+      const result = this.books.filter((book) => {
+        if (!book.title) { return false; }
+        return book.title.includes(this.tempBook);
+      });
+      return result;
+    },
+    searchBook() {
+      // 如果為fasly直接跳回第一頁
+      if (!this.tempBook) {
+        this.isSearch = false;
+        this.booksOfPage = this.books.slice(0, this.rows);
+        this.pageCount = this.books.length;
+        this.$refs.paginator.d_first = 0;
+        return;
+      }
+      const filterBooks = this.filterBookBytitle();
+      this.isSearch = true;
+      this.booksOfPage = filterBooks.slice(0, this.rows);
+      // 頁數需要也跟著更新
+      this.pageCount = filterBooks.length;
     },
   },
 };

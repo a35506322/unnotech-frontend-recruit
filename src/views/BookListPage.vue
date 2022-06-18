@@ -68,9 +68,12 @@ export default {
       tempBook: '',
       pageCount: 0,
       isSearch: false,
+      currentStart: 0,
+      currentEnd: 0,
     };
   },
   async mounted() {
+    console.log('mounted');
     await this.getBooks();
     this.rows = 5;
     this.booksOfPage = this.books.slice(0, this.rows);
@@ -100,7 +103,7 @@ export default {
       this.$toast.add({
         severity: 'success', summary: '新增成功', detail: '', life: 3000,
       });
-      await this.getBooks();
+      await this.reloadPageInfo();
       this.loading = false;
     },
     deleteBookById(book) {
@@ -116,23 +119,28 @@ export default {
           this.$toast.add({
             severity: 'success', summary: '刪除成功', detail: '', life: 3000,
           });
-          await this.getBooks();
+          await this.reloadPageInfo();
         },
         reject: () => {
         },
       });
     },
     onPage(event, isSearch) {
-      const start = this.rows * event.page;
-      const end = this.rows * (event.page + 1);
+      this.currentStart = this.rows * event.page;
+      this.currentEnd = this.rows * (event.page + 1);
       if (isSearch) {
-        const filterBooks = this.filterBookBytitle();
-        this.booksOfPage = filterBooks.slice(start, end);
+        const filterBooks = this.filterBookByTitle();
+        this.booksOfPage = filterBooks.slice(this.currentStart, this.currentEnd);
       } else {
-        this.booksOfPage = this.books.slice(start, end);
+        this.booksOfPage = this.books.slice(this.currentStart, this.currentEnd);
       }
     },
-    filterBookBytitle() {
+    async reloadPageInfo() {
+      await this.getBooks();
+      this.pageCount = this.books.length;
+      this.booksOfPage = this.books.slice(this.currentStart, this.currentEnd);
+    },
+    filterBookByTitle() {
       const result = this.books.filter((book) => {
         if (!book.title) { return false; }
         return book.title.includes(this.tempBook);
@@ -140,7 +148,7 @@ export default {
       return result;
     },
     searchBook() {
-      // 如果為fasly直接跳回第一頁
+      // 如果為falsy直接跳回第一頁
       if (!this.tempBook) {
         this.isSearch = false;
         this.booksOfPage = this.books.slice(0, this.rows);
@@ -148,11 +156,12 @@ export default {
         this.$refs.paginator.d_first = 0;
         return;
       }
-      const filterBooks = this.filterBookBytitle();
+      const filterBooks = this.filterBookByTitle();
       this.isSearch = true;
       this.booksOfPage = filterBooks.slice(0, this.rows);
       // 頁數需要也跟著更新
       this.pageCount = filterBooks.length;
+      this.$refs.paginator.d_first = 0;
     },
   },
 };

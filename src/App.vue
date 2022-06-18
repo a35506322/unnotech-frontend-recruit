@@ -11,4 +11,5 @@
 @import '../node_modules/primeicons/primeicons.css';
 @import '../node_modules/primeflex/primeflex.css';
 @import '../node_modules/bootstrap/dist/css/bootstrap-grid.css';
+@import '../node_modules/bootstrap-icons/font/bootstrap-icons.css';
 </style>

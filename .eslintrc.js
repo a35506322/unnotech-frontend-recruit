@@ -17,6 +17,7 @@ module.exports = {
     "no-underscore-dangle": 'off',
     "import/prefer-default-export": "off",
     "vuejs-accessibility/label-has-for":"off",
-    "vuejs-accessibility/no-autofocus": "off"
+    "vuejs-accessibility/no-autofocus": "off",
+    "next-line no-restricted-syntax":"off",
   },
 };

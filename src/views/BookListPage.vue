@@ -34,11 +34,11 @@
 <script>
 // eslint-disable-next-line import/no-cycle
 import { getBooks, addBook } from '@/apis/SystemApi';
-import CommandBook from '@/components/CommandBook.vue';
+import commandBook from '@/components/CommandBook.vue';
 
 export default {
   components: {
-    'command-book': CommandBook,
+    'command-book': commandBook,
   },
   data() {
     return {

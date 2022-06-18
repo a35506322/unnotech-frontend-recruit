@@ -3,7 +3,8 @@
     <h1>{{ book.title }}</h1>
     <p-button
         icon="bi bi-pencil-square"
-        class="p-button-rounded p-button-success p-button-lg ml-2"
+        label="編輯"
+        class="p-button-success p-button-lg ml-2"
         v-on:click="openCommandBook"
       ></p-button>
   </div>
@@ -28,12 +29,12 @@
 <script>
 // eslint-disable-next-line import/no-cycle
 import { getBook, updateBook } from '@/apis/SystemApi';
-import CommandBook from '@/components/CommandBook.vue';
+import commandBook from '@/components/CommandBook.vue';
 import { compareObjectDifferentialProperties } from '@/methods/common';
 
 export default {
   components: {
-    'command-book': CommandBook,
+    'command-book': commandBook,
   },
   data() {
     return {

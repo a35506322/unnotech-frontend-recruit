@@ -4,7 +4,7 @@
     <div class="d-flex align-items-center">
       <span class="p-input-icon-left">
         <i class="pi pi-search" />
-        <p-inputtext type="text" v-on:input="searchBook" v-model="tempBook"
+        <p-inputtext type="text" v-on:input="searchBook" v-model="bookKeyWord"
         placeholder="請輸入書名"></p-inputtext>
       </span>
     </div>
@@ -24,16 +24,17 @@
       v-bind:key="book.id"
     >
       <div class="relative">
-        <p-card
-          class="card-wrapper transition-linear transition-duration-500
-          bg-blue-500 hover:bg-yellow-500 text-white hover:text-gray-900"
-          v-on:click="goBookDetailById(book.id)"
-        >
-          <template #title>書名：{{ book.title }}</template>
-          <template #content>
-            <p>作者：{{ book.author }}</p>
-          </template>
-        </p-card>
+        <router-link :to="{ path: `/books/${book.id}/`}" style="text-decoration:none">
+          <p-card
+            class="card-wrapper transition-linear transition-duration-500
+            bg-blue-500 hover:bg-yellow-500 text-white hover:text-gray-900"
+          >
+            <template #title>書名：{{ book.title }}</template>
+            <template #content>
+              <p>作者：{{ book.author }}</p>
+            </template>
+          </p-card>
+        </router-link>
         <p-button
           icon="bi bi-trash"
           class="p-button-rounded p-button-danger p-button-lg ml-2 absolute top--10 right--5"
@@ -43,7 +44,7 @@
       </div>
     </div>
     <p-paginator v-bind:rows="rows" v-bind:totalRecords="pageCount" ref="paginator"
-    v-on:page="onPage($event,isSearch)"></p-paginator>
+    v-on:page="onPage($event)"></p-paginator>
   </div>
   <command-book ref="commandBook" v-bind:is-new="true" v-on:save-item="saveAddBook"
   v-bind:is-loading="loading" v-bind:tempItem="{}"></command-book>
@@ -65,19 +66,20 @@ export default {
       loading: false,
       rows: 0,
       booksOfPage: [],
-      tempBook: '',
+      bookKeyWord: '',
       pageCount: 0,
-      isSearch: false,
-      currentStart: 0,
-      currentEnd: 0,
     };
   },
   async mounted() {
-    console.log('mounted');
-    await this.getBooks();
     this.rows = 5;
-    this.booksOfPage = this.books.slice(0, this.rows);
-    this.pageCount = this.books.length;
+    if (!this.$store.state.booksPageCurrentStart && !this.$store.state.booksPageCurrentEnd) {
+      this.$store.commit('endowBooksPageCurrentStart', 0);
+      this.$store.commit('endowBooksPageCurrentEnd', this.rows);
+      this.$refs.paginator.d_first = this.$store.state.booksPageCurrentStart;
+    }
+    this.bookKeyWord = this.$store.state.bookKeyWord;
+    await this.getBooks();
+    this.reloadPageInfo();
   },
   methods: {
     async getBooks() {
@@ -86,9 +88,6 @@ export default {
         return;
       }
       this.books = response.data;
-    },
-    goBookDetailById(id) {
-      this.$router.push(`/books/${id}/`);
     },
     openCommandBook() {
       this.$refs.commandBook.show();
@@ -103,7 +102,8 @@ export default {
       this.$toast.add({
         severity: 'success', summary: '新增成功', detail: '', life: 3000,
       });
-      await this.reloadPageInfo();
+      await this.getBooks();
+      this.reloadPageInfo();
       this.loading = false;
     },
     deleteBookById(book) {
@@ -119,48 +119,48 @@ export default {
           this.$toast.add({
             severity: 'success', summary: '刪除成功', detail: '', life: 3000,
           });
-          await this.reloadPageInfo();
+          await this.getBooks();
+          this.reloadPageInfo();
         },
         reject: () => {
         },
       });
     },
-    onPage(event, isSearch) {
-      this.currentStart = this.rows * event.page;
-      this.currentEnd = this.rows * (event.page + 1);
-      if (isSearch) {
-        const filterBooks = this.filterBookByTitle();
-        this.booksOfPage = filterBooks.slice(this.currentStart, this.currentEnd);
-      } else {
-        this.booksOfPage = this.books.slice(this.currentStart, this.currentEnd);
-      }
-    },
-    async reloadPageInfo() {
-      await this.getBooks();
-      this.pageCount = this.books.length;
-      this.booksOfPage = this.books.slice(this.currentStart, this.currentEnd);
+    async onPage(event) {
+      this.$store.commit('endowBooksPageCurrentStart', this.rows * event.page);
+      this.$store.commit('endowBooksPageCurrentEnd', this.rows * (event.page + 1));
+      this.reloadPageInfo();
     },
     filterBookByTitle() {
       const result = this.books.filter((book) => {
         if (!book.title) { return false; }
-        return book.title.includes(this.tempBook);
+        return book.title.includes(this.$store.state.bookKeyWord);
       });
       return result;
     },
-    searchBook() {
-      // 如果為falsy直接跳回第一頁
-      if (!this.tempBook) {
-        this.isSearch = false;
-        this.booksOfPage = this.books.slice(0, this.rows);
+    reloadPageInfo() {
+      // 當有搜尋關鍵字時候
+      if (this.bookKeyWord) {
+        const filterBooks = this.filterBookByTitle();
+        this.booksOfPage = filterBooks.slice(
+          this.$store.state.booksPageCurrentStart,
+          this.$store.state.booksPageCurrentEnd,
+        );
+        this.pageCount = filterBooks.length;
+      } else {
+        this.booksOfPage = this.books.slice(
+          this.$store.state.booksPageCurrentStart,
+          this.$store.state.booksPageCurrentEnd,
+        );
         this.pageCount = this.books.length;
-        this.$refs.paginator.d_first = 0;
-        return;
       }
-      const filterBooks = this.filterBookByTitle();
-      this.isSearch = true;
-      this.booksOfPage = filterBooks.slice(0, this.rows);
-      // 頁數需要也跟著更新
-      this.pageCount = filterBooks.length;
+      this.$refs.paginator.d_first = this.$store.state.booksPageCurrentStart;
+    },
+    searchBook() {
+      this.$store.commit('endowBooksKeyWord', this.bookKeyWord);
+      this.$store.commit('endowBooksPageCurrentStart', 0);
+      this.$store.commit('endowBooksPageCurrentEnd', this.rows);
+      this.reloadPageInfo();
       this.$refs.paginator.d_first = 0;
     },
   },

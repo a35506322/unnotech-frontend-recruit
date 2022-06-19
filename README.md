@@ -18,7 +18,7 @@ npm run build
 npm run lint
 ```
 
-##1. 我們該如何執行你完成的專案
+## 1. 我們該如何執行你完成的專案
 ### 首頁
 ![markdown](https://github.com/a35506322/unnotech-frontend-recruit/blob/master/src/assets/%E8%AA%AA%E6%98%8E/%E9%A6%96%E9%A0%81.png?raw=true)
 #### 功能敘述
